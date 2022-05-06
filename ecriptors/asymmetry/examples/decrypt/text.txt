@@ -1,1 +1,1 @@
-[b'My secret id']
+[]

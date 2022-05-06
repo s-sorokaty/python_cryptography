@@ -1,4 +1,4 @@
-import cryptography
+from cryptography import exceptions
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import serialization, hashes
 
@@ -6,6 +6,7 @@ from cryptography.hazmat.primitives import serialization, hashes
 class Asymmetric_encriptor:
     private_key: rsa.RSAPrivateKey
     public_key: rsa.RSAPrivateKey
+    sign = ''
 
     def __init__(self, keypath: str) -> None:
         # private key
@@ -14,7 +15,7 @@ class Asymmetric_encriptor:
             key_size=4096,
         )
         public_key = private_key.public_key()
-        
+
         self.private_key = private_key
         self.public_key = public_key
 
@@ -60,10 +61,7 @@ class Asymmetric_encriptor:
             data = f.read()
         data = data.encode('utf-8')
         data = data.split()
-        data = [b'My secret weight', b'My secret id']
-        res = []
         open(filepath + 'encrypt/text.txt', "wb").close() # clear file
-        print(1)
         for encode in data:
             encrypted =  self.public_key.encrypt(
                 encode,
@@ -75,13 +73,31 @@ class Asymmetric_encriptor:
             )
             print(encrypted)
             with open(filepath + 'encrypt/text.txt', "ab") as f: f.write(encrypted)
+           
+    def check_sign(self, filepath):
+        with open(filepath + 'encrypt/text.txt', "rb") as f:
+            try:
+                self.public_key.verify(
+                self.sign,
+                f.read(),
+                padding.PSS(mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH),
+                hashes.SHA256())
+            except exceptions.InvalidSignature:
+                print("A bad signature failed")
+            else:
+                print("Good signature verified")
+
 
     def decrypt(self, filepath):
         read_data = []
-        print(2)
-        with open(filepath + 'encrypt/text.txt', "rb") as f:  
+        with open(filepath + 'encrypt/text.txt', "rb") as f:
+            self.sign = self.private_key.sign(f.read(),
+            padding.PSS(mgf=padding.MGF1(hashes.SHA256()),
+            salt_length=padding.PSS.MAX_LENGTH),
+            hashes.SHA256())
+            
             for encrypted in f:
-                print(encrypted)
                 read_data.append(
                     self.private_key.decrypt(
                         encrypted,
@@ -90,8 +106,9 @@ class Asymmetric_encriptor:
                         algorithm=hashes.SHA256(),
                         label=None
                     )))
-            print(read_data)
-        with open(filepath + 'decrypt/text.txt', "w") as f: f.write(str(read_data))
+        with open(filepath + 'decrypt/text.txt', "w") as f: 
+            
+            f.write(str(read_data))
 
 
 # # make sure the following are imported
