@@ -2,6 +2,16 @@ import hashlib
 
 from ecriptors.symmetry.symmetry_module import Symmetric_encriptor 
 from ecriptors.asymmetry.asymmetry_module import Asymmetric_encriptor
+import glob
+
+for wwid in glob.glob("/sys/block/*/device/wwid"):
+    print(wwid)
+    with open(wwid, "r") as file:
+        try:
+            data = file.readline().strip()
+            print(data)
+        except:
+            print("not readable")
 
 
 expample_filename = 'ecriptors/symmetry/examples/text.txt'
@@ -54,3 +64,28 @@ Asymmetric_encriptor.encrypt(expample_filepath)
 # with open(expample_filepath + 'encrypt/text.txt', 'rb') as f:
 #     print(f.read())
 Asymmetric_encriptor.check_sign(expample_filepath)
+password = 'WASD1234'
+
+
+class RunCountError(Exception):
+    pass
+
+
+with open('run_count.txt') as f:
+    run_count = int(f.read())
+with open('run_count.txt', 'w') as f:
+    f.write(str(run_count + 1))
+
+
+if __name__ == '__main__':
+    if run_count > 5:
+        raise RunCountError
+    user_password = ''
+    while user_password != password:
+        print('password:')
+        user_password = input()
+    print('you are logined')
+
+    while True:
+        pass
+

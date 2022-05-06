@@ -22,7 +22,7 @@ class Asymmetric_encriptor:
         serial_private = private_key.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=serialization.NoEncryption()
+            encryption_algorithm=serialization.BestAvailableEncryption(b'naa.55cd2e414f5f7f43')
         )
         with open(keypath + 'private.pem', 'wb') as f: f.write(serial_private)
         
